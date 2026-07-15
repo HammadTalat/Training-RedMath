@@ -11,3 +11,56 @@ spring:
     hibernate:
       ddl-auto: none
     open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    export:
+      otlp:
+        enabled: "${OTLP_TRACING_ENABLED:false}"
+    sampling:
+      probability: 1.0
+  otlp:
+    metrics:
+      export:
+        enabled: "${OTLP_METRICS_ENABLED:false}"
+        url: "${OTLP_METRICS_URL:http://localhost:4318/v1/metrics}"
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          transport: http
+          endpoint: "${OTLP_TRACING_ENDPOINT:http://localhost:4318/v1/traces}"
+    resource-attributes:
+      "service.name": "${spring.application.name}"
+
+logging:
+  pattern:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  include-application-name: false
+
+jdbc:
+  datasource-proxy:
+    enabled: true
+    include-parameter-values: false
+  opentelemetry:
+    enabled: true
+    spans:
+      enabled: true
+  includes:
+    - QUERY
+
+#sample
+app:
+  sample-message: This value was loaded from application.yml with @Value
+  news:
+    title: News Management System
+    page-size: 10

@@ -10,3 +10,21 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+
+# Simple values used while the test application is running.
+app:
+  sample-message: Test message from application.yml
+  news:
+    title: Test News
+    page-size: 5
+
+# Tests do not need to send metrics or traces to a local OpenTelemetry collector.
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  tracing:
+    export:
+      otlp:
+        enabled: false

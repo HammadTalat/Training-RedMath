@@ -21,13 +21,13 @@
                     nullable: false
               - column:
                   name: title
-                  type: varchar(200)
+                  type: CLOB
               - column:
                   name: details
-                  type: varchar(200)
+                  type: CLOB
               - column:
                   name: reported_by
-                  type: varchar(200)
+                  type: CLOB
               - column:
                   name: reported_at
                   type: DATETIME(6)
