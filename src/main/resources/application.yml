@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: NewsManagementSystem
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/NewsManagementSystem}
+    username: "root"
+    password: "1234"
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yml
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false

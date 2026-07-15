@@ -1,0 +1,33 @@
+  databaseChangeLog:
+  - changeSet:
+      id: 001-create-news-table
+      author: news-management-system
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: news
+      changes:
+        - createTable:
+            tableName: news
+            columns:
+              - column:
+                  name: news_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_news
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(200)
+              - column:
+                  name: details
+                  type: varchar(200)
+              - column:
+                  name: reported_by
+                  type: varchar(200)
+              - column:
+                  name: reported_at
+                  type: DATETIME(6)
