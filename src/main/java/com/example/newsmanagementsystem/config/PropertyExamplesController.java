@@ -15,7 +15,6 @@ public class PropertyExamplesController {
 
     private final NewsProperties newsProperties;
 
-    // @Value reads one exact property and assigns it to this variable.
     @Value("${app.sample-message}")
     private String sampleMessage;
 

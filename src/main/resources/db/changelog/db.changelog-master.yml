@@ -31,3 +31,125 @@
               - column:
                   name: reported_at
                   type: DATETIME(6)
+  - changeSet:
+      id: 002-limit-news-column-lengths
+      author: news-management-system
+      preConditions:
+        - onFail: HALT
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: "0"
+            sql: SELECT COUNT(*) FROM news WHERE CHAR_LENGTH(title) > 255 OR CHAR_LENGTH(details) > 5000 OR CHAR_LENGTH(reported_by) > 100
+      changes:
+        - modifyDataType:
+            tableName: news
+            columnName: title
+            newDataType: VARCHAR(255)
+        - modifyDataType:
+            tableName: news
+            columnName: details
+            newDataType: VARCHAR(5000)
+        - modifyDataType:
+            tableName: news
+            columnName: reported_by
+            newDataType: VARCHAR(100)
+  - changeSet:
+      id: 003-create-app-user-table
+      author: news-management-system
+      changes:
+        - createTable:
+            tableName: app_user
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_app_user
+                    nullable: false
+              - column:
+                  name: username
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_app_user_username
+              - column:
+                  name: password_hash
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: DATETIME(6)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 004-insert-development-users
+      author: news-management-system
+      changes:
+        - insert:
+            tableName: app_user
+            columns:
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: password_hash
+                  value: '$2a$10$EBtlU7/QU8Sr7/3zOQyx8eCJAMCJ9551keEqwSTza6KeAMCzNHRaO'
+              - column:
+                  name: role
+                  value: ADMIN
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: created_at
+                  valueComputed: CURRENT_TIMESTAMP
+        - insert:
+            tableName: app_user
+            columns:
+              - column:
+                  name: username
+                  value: reporter
+              - column:
+                  name: password_hash
+                  value: '$2a$10$hGsjlj60zlpfCvIdQUF61eoZgYc4q0uHmgew5DMu60SfuKhLRBsVK'
+              - column:
+                  name: role
+                  value: REPORTER
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: created_at
+                  valueComputed: CURRENT_TIMESTAMP
+        - insert:
+            tableName: app_user
+            columns:
+              - column:
+                  name: username
+                  value: reader
+              - column:
+                  name: password_hash
+                  value: '$2a$10$TyFiXLPENVQy.4j6hyFwZe6E6EYHw.HhR5PAi49eU3rhjYLjno/3W'
+              - column:
+                  name: role
+                  value: USER
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: created_at
+                  valueComputed: CURRENT_TIMESTAMP

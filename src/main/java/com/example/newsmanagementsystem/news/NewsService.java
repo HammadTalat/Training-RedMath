@@ -3,9 +3,7 @@ package com.example.newsmanagementsystem.news;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,31 +25,19 @@ public class NewsService {
     }
 
     @Transactional
-    public News create(News news) {
+    public News create(News news, String reportedBy) {
         news.setNewsId(null);
+        news.setReportedBy(reportedBy);
         return newsRepository.save(news);
     }
 
-
+    @Transactional
     public News update(Long newsId, News news) {
-        Optional<News> e = newsRepository.findById(newsId);
-        News existingNews = null;
-        try {
-            if (e.isPresent()) {
-                existingNews = e.get();
-                existingNews.setTitle(news.getTitle());
-                existingNews.setDetails(news.getDetails());
-                existingNews.setReportedBy(news.getReportedBy());
-                return newsRepository.save(existingNews);
-
-            }
-        }
-        catch(Exception ex){
-
-        }
-        return null;
+        News existingNews = findOne(newsId);
+        existingNews.setTitle(news.getTitle());
+        existingNews.setDetails(news.getDetails());
+        return newsRepository.save(existingNews);
     }
-
 
     @Transactional
     public void delete(Long newsId) {

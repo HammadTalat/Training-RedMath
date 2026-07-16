@@ -2,6 +2,7 @@ package com.example.newsmanagementsystem.news;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/news")
+@RequestMapping({"/api/v1/news", "/api/news"})
 public class NewsController {
 
     private final NewsService newsService;
@@ -34,9 +35,9 @@ public class NewsController {
     }
 
     @PostMapping
-    public ResponseEntity<News> create(@RequestBody News news) {
+    public ResponseEntity<News> create(@RequestBody News news, Authentication authentication) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(newsService.create(news));
+                .body(newsService.create(news, authentication.getName()));
     }
 
     @PutMapping("/{newsId}")

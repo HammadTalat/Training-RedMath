@@ -1,11 +1,11 @@
 package com.example.newsmanagementsystem.news;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -20,13 +20,13 @@ public class News {
     @Column(name = "news_id")
     private Long newsId;
 
-
+    @Column(name = "title", length = 255)
     private String title;
 
-
+    @Column(name = "details", length = 5000)
     private String details;
 
-    @Column(name = "reported_by")
+    @Column(name = "reported_by", length = 100)
     private String reportedBy;
 
     @Column(name = "reported_at", updatable = false)
