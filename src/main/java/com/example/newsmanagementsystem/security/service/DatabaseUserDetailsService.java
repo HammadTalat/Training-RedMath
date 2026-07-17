@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class DatabaseUserDetailsService implements UserDetailsService {
 
@@ -27,5 +29,12 @@ public class DatabaseUserDetailsService implements UserDetailsService {
                 .roles(appUser.getRole().name())
                 .disabled(!appUser.isEnabled())
                 .build();
+    }
+
+    public AppUser generateToken(String username) {
+        AppUser appUser = userRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password"));
+        appUser.setAccessToken(UUID.randomUUID().toString());
+        return userRepository.save(appUser);
     }
 }
