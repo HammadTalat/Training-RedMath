@@ -36,6 +36,8 @@ public class NewsService {
         News existingNews = findOne(newsId);
         existingNews.setTitle(news.getTitle());
         existingNews.setDetails(news.getDetails());
+        existingNews.setReportedBy(news.getReportedBy());
+        existingNews.setReportedAt(news.getReportedAt());
         return newsRepository.save(existingNews);
     }
 

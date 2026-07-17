@@ -153,3 +153,31 @@
               - column:
                   name: created_at
                   valueComputed: CURRENT_TIMESTAMP
+  - changeSet:
+      id: 005-change-app-user-enabled-to-bit
+      author: news-management-system
+      changes:
+        - modifyDataType:
+            tableName: app_user
+            columnName: enabled
+            newDataType: BIT(1)
+  - changeSet:
+      id: 006-add-app-user-access-token
+      author: news-management-system
+      changes:
+        - addColumn:
+            tableName: app_user
+            columns:
+              - column:
+                  name: access_token
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: 007-keep-app-user-enabled-required
+      author: news-management-system
+      changes:
+        - addNotNullConstraint:
+            tableName: app_user
+            columnName: enabled
+            columnDataType: BIT(1)
