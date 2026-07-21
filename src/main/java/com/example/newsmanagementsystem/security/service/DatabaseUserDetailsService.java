@@ -34,7 +34,9 @@ public class DatabaseUserDetailsService implements UserDetailsService {
     public AppUser generateToken(String username) {
         AppUser appUser = userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password"));
+
         appUser.setAccessToken(UUID.randomUUID().toString());
         return userRepository.save(appUser);
     }
+
 }
