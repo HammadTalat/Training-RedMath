@@ -1,6 +1,7 @@
 package com.example.newsmanagementsystem.security.config;
 
 import com.example.newsmanagementsystem.security.service.DatabaseUserDetailsService;
+import com.example.newsmanagementsystem.security.service.JWTConfigService;
 import com.example.newsmanagementsystem.user.entity.AppUser;
 import com.example.newsmanagementsystem.user.entity.AuthProvider;
 import com.example.newsmanagementsystem.user.entity.Role;
@@ -9,20 +10,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
@@ -35,13 +32,18 @@ import java.util.Optional;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    JWTConfigService jwtconfig;
+
+    public SecurityConfig(JWTConfigService jwtconfig) {
+        this.jwtconfig = jwtconfig;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, DatabaseUserDetailsService db, UserRepository repo) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/csrf").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/news/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/news/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/news/**")
                         .hasAnyRole("REPORTER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/news/**")
@@ -64,13 +66,7 @@ public class SecurityConfig {
 //                .httpBasic(Customizer.withDefaults())
 
                 .formLogin(config -> config.successHandler((request, response, authentication) -> {
-                    AppUser user = db.generateToken(authentication.getName());
-                    response.setContentType("application/json");
-                    response.getWriter().write(
-                            "{\"accessToken\":\""
-                                    + user.getAccessToken()
-                                    + "\"}"
-                    );
+                   jwtconfig.onAuthLoginForm(request,response,authentication);
 
                 }))
 //                .oauth2Login((config)->config.successHandler((request,response,authentication)->{
@@ -145,8 +141,7 @@ public class SecurityConfig {
 
                             Optional<AppUser> u =
                                     repo.findByAuthProviderAndProviderUserId(obj,String.valueOf(providerId));
-                            String token;
-
+                            AppUser pass;
                             if (u.isEmpty()) {
                                 AppUser newUser = new AppUser();
                                 newUser.setCreatedAt(LocalDateTime.now());
@@ -158,33 +153,24 @@ public class SecurityConfig {
                                 newUser.setAuthProvider(obj);
                                 newUser.setProviderUserId(String.valueOf(providerId));
                                 repo.save(newUser);
-                                AppUser user = db.generateToken(username);
-                                token=user.getAccessToken();
+                                pass=newUser;
                             }
-                            else {
-                                token = u.get().getAccessToken();
+                            else{
+                                pass=u.get();
                             }
-
                             response.setContentType("application/json");
+                            System.out.println("calling generate token");
+                            jwtconfig.onAuth2Login(request,response,pass);
+                            System.out.println("hereeeeee");
 
-                            response.getWriter().write(
-                                    "{\"accessToken\":\""
-                                            + token
-                                            + "\"}"
-                            );
+
+
                         }
                 ))
 
                 .oauth2ResourceServer(config -> config.opaqueToken(config2 -> config2.introspector(token -> {
 
-                    Optional<AppUser> user = repo.findByAccessToken(token);
-                    if(user.isPresent()){
-                        AppUser u = user.get();
-                        System.out.println(u.getRole().toString());
-                        return new DefaultOAuth2AuthenticatedPrincipal(u.getUsername(), Map.of("Username" ,u.getUsername(),"User role" ,u.getRole()),
-                        AuthorityUtils.createAuthorityList("ROLE_" + u.getRole().toString()));
-                    }
-                    throw new BadOpaqueTokenException("Invalid Token");
+                    return jwtconfig.verify(token);
                 }) ));
 
         return http.build();
