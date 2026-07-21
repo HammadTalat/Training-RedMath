@@ -181,3 +181,32 @@
             tableName: app_user
             columnName: enabled
             columnDataType: BIT(1)
+
+  - changeSet:
+      id: 008-add-oauth-provider-details
+      author: news-management-system
+      changes:
+        - addColumn:
+            tableName: app_user
+            columns:
+              - column:
+                  name: auth_provider
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: provider_user_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: display_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+

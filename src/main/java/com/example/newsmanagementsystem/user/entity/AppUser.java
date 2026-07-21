@@ -25,6 +25,13 @@ public class AppUser {
     @Column(name = "user_id")
     private Long userId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider", nullable = false)
+    private AuthProvider authProvider;
+
+    @Column(name = "provider_user_id", nullable = false)
+    private String providerUserId;
+
     @Column(name = "username", nullable = false, unique = true, length = 100)
     private String username;
 

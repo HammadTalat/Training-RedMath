@@ -2,6 +2,7 @@ package com.example.newsmanagementsystem.security.config;
 
 import com.example.newsmanagementsystem.security.service.DatabaseUserDetailsService;
 import com.example.newsmanagementsystem.user.entity.AppUser;
+import com.example.newsmanagementsystem.user.entity.AuthProvider;
 import com.example.newsmanagementsystem.user.entity.Role;
 import com.example.newsmanagementsystem.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +16,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -37,7 +41,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/csrf").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/news/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/news/**").hasAnyRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/news/**")
                         .hasAnyRole("REPORTER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/news/**")
@@ -58,57 +62,130 @@ public class SecurityConfig {
 
                 )
 //                .httpBasic(Customizer.withDefaults())
+
+                .formLogin(config -> config.successHandler((request, response, authentication) -> {
+                    AppUser user = db.generateToken(authentication.getName());
+                    response.setContentType("application/json");
+                    response.getWriter().write(
+                            "{\"accessToken\":\""
+                                    + user.getAccessToken()
+                                    + "\"}"
+                    );
+
+                }))
+//                .oauth2Login((config)->config.successHandler((request,response,authentication)->{
+//                            OidcUser googleUser=(OidcUser) authentication.getPrincipal();
+//                            String username=googleUser.getAttribute("name");
+//                            System.out.println(username);
+//                            Optional<AppUser> u =repo.findByUsernameIgnoreCase(username);
+//                            if(u.isEmpty()){
+//                                AppUser newUser=new AppUser();
+//                                newUser.setCreatedAt(LocalDateTime.now());
+//                                newUser.setPasswordHash(passwordEncoder().encode("hello123"));
+//                                newUser.setRole(Role.REPORTER);
+//                                newUser.setUsername(username);
+//                                repo.save(newUser);
+//                            }
+//                            AppUser user=db.generateToken(username);
+//                            response.setContentType("application/json");
+//                            response.getWriter().write(
+//                                    "{\"accessToken\":\""
+//                                            + user.getAccessToken()
+//                                            + "\"}"
+//                            );
 //
-//                .formLogin(config -> config.successHandler((request, response, authentication) -> {
-//                    AppUser user = db.generateToken(authentication.getName());
-//                    response.setContentType("application/json");
-//                    response.getWriter().write(
-//                            "{\"accessToken\":\""
-//                                    + user.getAccessToken()
-//                                    + "\"}"
-//                    );
-//                }))
-                .oauth2Login((config)->config.successHandler((request,response,authentication)->{
-                            OidcUser googleUser=(OidcUser) authentication.getPrincipal();
-                            String username=googleUser.getAttribute("name");
-                            System.out.println(username);
-                            Optional<AppUser> u =repo.findByUsernameIgnoreCase(username);
-                            if(u.isEmpty()){
-                                AppUser newUser=new AppUser();
-                                newUser.setCreatedAt(LocalDateTime.now());
-                                newUser.setPasswordHash(passwordEncoder().encode("hello123"));
-                                newUser.setRole(Role.REPORTER);
-                                newUser.setUsername(username);
-                                repo.save(newUser);
-                            }
-                            AppUser user=db.generateToken(username);
-                            response.setContentType("application/json");
-                            response.getWriter().write(
-                                    "{\"accessToken\":\""
-                                            + user.getAccessToken()
-                                            + "\"}"
-                            );
-
-
-                        }))
-
+//
+//                        }))
+//
                 .csrf(  config->config.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS
-                ));
+                ))
+                .oauth2Login(config -> config.successHandler(
+                        (request, response, authentication) -> {
+
+                            OAuth2AuthenticationToken oauthToken =
+                                    (OAuth2AuthenticationToken) authentication;
+
+                            OAuth2User oauthUser = oauthToken.getPrincipal();
+                            System.out.println("Here");
+                            String provider =
+                                    oauthToken.getAuthorizedClientRegistrationId();
+
+                            Object providerId;
+                            System.out.println(provider);
+                            AuthProvider obj;
+                            if(provider.equals("google")){
+                                obj=AuthProvider.GOOGLE;
+                            }else{
+                                obj = AuthProvider.GITHUB;
+                            }
 
 
-//                .oauth2ResourceServer(config -> config.opaqueToken(config2 -> config2.introspector(token -> {
-//
-//                    Optional<AppUser> user = repo.findByAccessToken(token);
-//                    if(user.isPresent()){
-//                        AppUser u = user.get();
-//                        System.out.println(u.getRole().toString());
-//                        return new DefaultOAuth2AuthenticatedPrincipal(u.getUsername(), Map.of("Username" ,u.getUsername(),"User role" ,u.getRole()),
-//                        AuthorityUtils.createAuthorityList("ROLE_" + u.getRole().toString()));
-//                    }
-//                        return null;
-//                }) ))
+                            if ("google".equals(provider)) {
+                                providerId = oauthUser.getAttribute("sub");
+                            } else if ("github".equals(provider)) {
+                                providerId = oauthUser.getAttribute("id");
+                            } else {
+                                throw new IllegalArgumentException(
+                                        "Unsupported provider: " + provider
+                                );
+                            }
+
+                            if (providerId == null) {
+                                throw new IllegalStateException(
+                                        "Provider user ID is missing"
+                                );
+                            }
+
+                            String username = oauthUser.getAttribute("name");
+
+
+                            System.out.println(username);
+
+                            Optional<AppUser> u =
+                                    repo.findByAuthProviderAndProviderUserId(obj,String.valueOf(providerId));
+                            String token;
+
+                            if (u.isEmpty()) {
+                                AppUser newUser = new AppUser();
+                                newUser.setCreatedAt(LocalDateTime.now());
+                                newUser.setPasswordHash(
+                                        passwordEncoder().encode("hello123")
+                                );
+                                newUser.setRole(Role.REPORTER);
+                                newUser.setUsername(username);
+                                newUser.setAuthProvider(obj);
+                                newUser.setProviderUserId(String.valueOf(providerId));
+                                repo.save(newUser);
+                                AppUser user = db.generateToken(username);
+                                token=user.getAccessToken();
+                            }
+                            else {
+                                token = u.get().getAccessToken();
+                            }
+
+                            response.setContentType("application/json");
+
+                            response.getWriter().write(
+                                    "{\"accessToken\":\""
+                                            + token
+                                            + "\"}"
+                            );
+                        }
+                ))
+
+                .oauth2ResourceServer(config -> config.opaqueToken(config2 -> config2.introspector(token -> {
+
+                    Optional<AppUser> user = repo.findByAccessToken(token);
+                    if(user.isPresent()){
+                        AppUser u = user.get();
+                        System.out.println(u.getRole().toString());
+                        return new DefaultOAuth2AuthenticatedPrincipal(u.getUsername(), Map.of("Username" ,u.getUsername(),"User role" ,u.getRole()),
+                        AuthorityUtils.createAuthorityList("ROLE_" + u.getRole().toString()));
+                    }
+                    throw new BadOpaqueTokenException("Invalid Token");
+                }) ));
 
         return http.build();
     }
