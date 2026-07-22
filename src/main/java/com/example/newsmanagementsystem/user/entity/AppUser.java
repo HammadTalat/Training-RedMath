@@ -48,6 +48,7 @@ public class AppUser {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+
     @Column(name = "access_token", length = 100)
     private String accessToken;
 
@@ -55,6 +56,7 @@ public class AppUser {
     }
 
     @PrePersist
+    @SuppressWarnings("PMD.UnusedPrivateMethod") // Invoked by JPA through reflection.
     private void assignCreatedAt() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();

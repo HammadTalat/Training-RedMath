@@ -32,6 +32,9 @@ import java.util.Optional;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private static final String GOOGLE = "google";
+    private static final String GITHUB = "github";
+
     JWTConfigService jwtconfig;
 
     public SecurityConfig(JWTConfigService jwtconfig) {
@@ -104,23 +107,21 @@ public class SecurityConfig {
                                     (OAuth2AuthenticationToken) authentication;
 
                             OAuth2User oauthUser = oauthToken.getPrincipal();
-                            System.out.println("Here");
                             String provider =
                                     oauthToken.getAuthorizedClientRegistrationId();
 
                             Object providerId;
-                            System.out.println(provider);
                             AuthProvider obj;
-                            if(provider.equals("google")){
+                            if (GOOGLE.equals(provider)) {
                                 obj=AuthProvider.GOOGLE;
                             }else{
                                 obj = AuthProvider.GITHUB;
                             }
 
 
-                            if ("google".equals(provider)) {
+                            if (GOOGLE.equals(provider)) {
                                 providerId = oauthUser.getAttribute("sub");
-                            } else if ("github".equals(provider)) {
+                            } else if (GITHUB.equals(provider)) {
                                 providerId = oauthUser.getAttribute("id");
                             } else {
                                 throw new IllegalArgumentException(
@@ -136,8 +137,6 @@ public class SecurityConfig {
 
                             String username = oauthUser.getAttribute("name");
 
-
-                            System.out.println(username);
 
                             Optional<AppUser> u =
                                     repo.findByAuthProviderAndProviderUserId(obj,String.valueOf(providerId));
@@ -159,9 +158,7 @@ public class SecurityConfig {
                                 pass=u.get();
                             }
                             response.setContentType("application/json");
-                            System.out.println("calling generate token");
                             jwtconfig.onAuth2Login(request,response,pass);
-                            System.out.println("hereeeeee");
 
 
 

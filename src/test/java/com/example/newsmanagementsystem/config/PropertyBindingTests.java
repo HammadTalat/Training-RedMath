@@ -20,6 +20,7 @@ class PropertyBindingTests {
                     "app.sample-message=Hello from the test property");
 
     @Test
+    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert") // Assertions execute inside the context callback.
     void loadsConfigurationPropertiesAndValueAnnotation() {
         contextRunner.run(context -> {
             NewsProperties configurationProperties = context.getBean(NewsProperties.class);
