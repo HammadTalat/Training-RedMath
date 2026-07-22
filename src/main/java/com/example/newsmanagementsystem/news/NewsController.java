@@ -43,7 +43,7 @@ public class NewsController {
         boolean isAdmin = auth.getAuthorities()
                 .stream()
                 .anyMatch(authority ->
-                        authority.getAuthority().equals("ROLE_ADMIN")
+                        "ROLE_ADMIN".equals(authority.getAuthority())
                 );
         if(auth.getName().equals(news.getReportedBy()) || isAdmin){
             return ResponseEntity.ok(news);

@@ -126,28 +126,98 @@
 
     <build>
         <plugins>
+
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+
                 <configuration>
+                    <showWarnings>true</showWarnings>
+
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>
+                    </compilerArgs>
+
                     <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-configuration-processor</artifactId>
-                        </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
+
+                <executions>
+                    <execution>
+                        <id>checkstyle-validation</id>
+
+                        <phase>validate</phase>
+
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <configLocation>google_checks.xml</configLocation>
+
+                    <consoleOutput>true</consoleOutput>
+
+                    <failOnViolation>true</failOnViolation>
+
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+
+                    <excludeGeneratedSources>true</excludeGeneratedSources>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.28.0</version>
+
+                <executions>
+                    <execution>
+                        <id>pmd-quality-check</id>
+
+                        <phase>verify</phase>
+
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <rulesets>
+                        <ruleset>
+                            ${project.basedir}/config/pmd/ruleset.xml
+                        </ruleset>
+                    </rulesets>
+
+                    <includeTests>true</includeTests>
+
+                    <failOnViolation>true</failOnViolation>
+
+                    <failurePriority>3</failurePriority>
+
+                    <printFailingErrors>true</printFailingErrors>
+
+                    <verbose>true</verbose>
+
+                    <linkXRef>false</linkXRef>
+                </configuration>
             </plugin>
         </plugins>
     </build>
 
+
+
 </project>
+

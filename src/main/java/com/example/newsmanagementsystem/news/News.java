@@ -36,6 +36,7 @@ public class News {
     }
 
     @PrePersist
+    @SuppressWarnings("PMD.UnusedPrivateMethod") // Invoked by JPA through reflection.
     private void assignReportedAt() {
         reportedAt = LocalDateTime.now();
     }
