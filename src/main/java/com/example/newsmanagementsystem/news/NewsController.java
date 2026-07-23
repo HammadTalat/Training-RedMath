@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping({"/api/v1/news", "/api/news"})
@@ -22,13 +21,17 @@ public class NewsController {
 
     private final NewsService newsService;
 
-    public NewsController(NewsService newsService) {
+    NewsController(NewsService newsService) {
         this.newsService = newsService;
     }
 
     @GetMapping
-    public ResponseEntity<List<News>> findAll() {
-        return ResponseEntity.ok(newsService.findAll());
+    public ResponseEntity<List<NewsResponse>> findAll() {
+        List<NewsResponse> response = newsService.findAll()
+                .stream()
+                .map(NewsResponse::from)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{newsId}")
@@ -46,7 +49,7 @@ public class NewsController {
                         "ROLE_ADMIN".equals(authority.getAuthority())
                 );
         if(auth.getName().equals(news.getReportedBy()) || isAdmin){
-            return ResponseEntity.ok(news);
+            return ResponseEntity.ok(NewsResponse.from(news));
         }
 
         return ResponseEntity
@@ -54,15 +57,23 @@ public class NewsController {
                 .body("You are not allowed to access this news");
     }
     @PostMapping
-    public ResponseEntity<News> create(@RequestBody News news, Authentication authentication) {
+    public ResponseEntity<NewsResponse> create(
+            @RequestBody NewsRequest request,
+            Authentication authentication
+    ) {
+        News createdNews = newsService.create(request, authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(newsService.create(news, authentication.getName()));
+                .body(NewsResponse.from(createdNews));
     }
 
     @PutMapping("/{newsId}")
     @PreAuthorize("hasAnyRole('ADMIN' , 'REPORTER')")
-    public ResponseEntity<News> update(@PathVariable("newsId") Long newsId, @RequestBody News news) {
-        return ResponseEntity.ok(newsService.update(newsId, news));
+    public ResponseEntity<NewsResponse> update(
+            @PathVariable("newsId") Long newsId,
+            @RequestBody NewsRequest request
+    ) {
+        News updatedNews = newsService.update(newsId, request);
+        return ResponseEntity.ok(NewsResponse.from(updatedNews));
     }
 
     @DeleteMapping("/{newsId}")

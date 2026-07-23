@@ -25,18 +25,19 @@ public class NewsService {
     }
 
     @Transactional
-    public News create(News news, String reportedBy) {
-        news.setNewsId(null);
+    public News create(NewsRequest request, String reportedBy) {
+        News news = new News();
+        news.setTitle(request.title());
+        news.setDetails(request.details());
         news.setReportedBy(reportedBy);
         return newsRepository.save(news);
     }
 
     @Transactional
-    public News update(Long newsId, News news) {
+    public News update(Long newsId, NewsRequest request) {
         News existingNews = findOne(newsId);
-        existingNews.setTitle(news.getTitle());
-        existingNews.setDetails(news.getDetails());
-        existingNews.setReportedBy(news.getReportedBy());
+        existingNews.setTitle(request.title());
+        existingNews.setDetails(request.details());
         return newsRepository.save(existingNews);
     }
 
