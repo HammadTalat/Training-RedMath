@@ -11,6 +11,7 @@
     import org.springframework.security.test.context.support.WithMockUser;
     import org.springframework.test.web.servlet.MockMvc;
 
+    import static org.hamcrest.Matchers.hasSize;
     import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
     import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
     import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -46,16 +47,18 @@
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
-                                    {
-                                      "title": "Initial title",
-                                      "details": "%s",
-                                      "reportedBy": "Reporter"
-                                    }
+                                    {%n\
+                                      "title": "Initial title",%n\
+                                      "details": "%s",%n\
+                                      "reportedBy": "Reporter"%n\
+                                    }%n\
                                     """.formatted(detailsLongerThan255Characters)))
                     .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.*", hasSize(5)))
                     .andExpect(jsonPath("$.newsId").isNumber())
                     .andExpect(jsonPath("$.title").value("Initial title"))
                     .andExpect(jsonPath("$.details").value(detailsLongerThan255Characters))
+                    .andExpect(jsonPath("$.reportedBy").value("user"))
                     .andExpect(jsonPath("$.reportedAt").isNotEmpty());
 
             News createdNews = newsRepository.findAll().getFirst();
@@ -63,6 +66,7 @@
 
             mockMvc.perform(get(NEWS_BY_ID_PATH, newsId))
                     .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.*", hasSize(5)))
                     .andExpect(jsonPath("$.details").value(detailsLongerThan255Characters));
 
             mockMvc.perform(put(NEWS_BY_ID_PATH, newsId)
@@ -70,6 +74,7 @@
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
+                                      "newsId": 999,
                                       "title": "Updated title",
                                       "details": "Updated details",
                                       "reportedBy": "Updated reporter",
@@ -77,12 +82,15 @@
                                     }
                                     """))
                     .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.*", hasSize(5)))
                     .andExpect(jsonPath("$.newsId").value(newsId))
                     .andExpect(jsonPath("$.title").value("Updated title"))
+                    .andExpect(jsonPath("$.reportedBy").value(createdNews.getReportedBy()))
                     .andExpect(jsonPath("$.reportedAt").value(createdNews.getReportedAt().toString()));
 
             mockMvc.perform(get("/api/v1/news"))
                     .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].*", hasSize(5)))
                     .andExpect(jsonPath("$[0].newsId").value(newsId));
 
             mockMvc.perform(delete(NEWS_BY_ID_PATH, newsId)

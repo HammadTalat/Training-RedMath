@@ -35,9 +35,9 @@ public class SecurityConfig {
     private static final String GOOGLE = "google";
     private static final String GITHUB = "github";
 
-    JWTConfigService jwtconfig;
+    private final JWTConfigService jwtconfig;
 
-    public SecurityConfig(JWTConfigService jwtconfig) {
+    SecurityConfig(JWTConfigService jwtconfig) {
         this.jwtconfig = jwtconfig;
     }
 
