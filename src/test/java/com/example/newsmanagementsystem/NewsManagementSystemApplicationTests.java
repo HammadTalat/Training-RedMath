@@ -10,7 +10,12 @@
     import org.springframework.http.MediaType;
     import org.springframework.security.test.context.support.WithMockUser;
     import org.springframework.test.web.servlet.MockMvc;
+    import org.springframework.test.web.servlet.MvcResult;
+    import tools.jackson.databind.ObjectMapper;
 
+    import java.time.LocalDateTime;
+
+    import static org.assertj.core.api.Assertions.assertThat;
     import static org.hamcrest.Matchers.hasSize;
     import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
     import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -32,6 +37,9 @@
         @Autowired
         private NewsRepository newsRepository;
 
+        @Autowired
+        private ObjectMapper objectMapper;
+
         @BeforeEach
         void clearDatabase() {
             newsRepository.deleteAll();
@@ -39,7 +47,6 @@
 
         @Test
         @WithMockUser(roles = {"ADMIN", "REPORTER"})
-        @SuppressWarnings("PMD.UnitTestShouldIncludeAssert") // MockMvc andExpect calls are assertions.
         void performsCompleteCrudFlow() throws Exception {
             String detailsLongerThan255Characters = "Complete news details. ".repeat(15);
 
@@ -69,7 +76,7 @@
                     .andExpect(jsonPath("$.*", hasSize(5)))
                     .andExpect(jsonPath("$.details").value(detailsLongerThan255Characters));
 
-            mockMvc.perform(put(NEWS_BY_ID_PATH, newsId)
+            MvcResult updateResult = mockMvc.perform(put(NEWS_BY_ID_PATH, newsId)
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
@@ -86,7 +93,13 @@
                     .andExpect(jsonPath("$.newsId").value(newsId))
                     .andExpect(jsonPath("$.title").value("Updated title"))
                     .andExpect(jsonPath("$.reportedBy").value(createdNews.getReportedBy()))
-                    .andExpect(jsonPath("$.reportedAt").value(createdNews.getReportedAt().toString()));
+                    .andReturn();
+
+            String reportedAt = objectMapper.readTree(
+                    updateResult.getResponse().getContentAsString()
+            ).get("reportedAt").stringValue();
+            assertThat(LocalDateTime.parse(reportedAt))
+                    .isEqualTo(createdNews.getReportedAt());
 
             mockMvc.perform(get("/api/v1/news"))
                     .andExpect(status().isOk())

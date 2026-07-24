@@ -71,6 +71,7 @@ public class GoogleAuthController {
                         .map(GrantedAuthority::getAuthority)
                         .toList()
         );
+        //Testing
 
         return response;
     }

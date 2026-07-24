@@ -76,6 +76,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-opentelemetry</artifactId>
         </dependency>
 
@@ -296,6 +300,14 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+
+                        <configuration>
+                            <includes>
+                                <include>
+                                    com.example.newsmanagementsystem.*
+                                </include>
+                            </includes>
+                        </configuration>
                     </execution>
 
                     <execution>
