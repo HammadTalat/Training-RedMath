@@ -62,7 +62,6 @@ public class NewsService {
     }
 
     @Scheduled(fixedDelay = 60_000)
-    @SuppressWarnings("PMD.SystemPrintln") // Console output is intentional for this practice method.
     public void showNewsCount() {
         long totalNews = newsRepository.count();
         System.out.println("Total news: " + totalNews);

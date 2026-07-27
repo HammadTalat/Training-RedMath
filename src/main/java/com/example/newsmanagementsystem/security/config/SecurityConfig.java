@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -166,8 +167,14 @@ public class SecurityConfig {
                 ))
 
                 .oauth2ResourceServer(config -> config.opaqueToken(config2 -> config2.introspector(token -> {
-
-                    return jwtconfig.verify(token);
+                    try {
+                        return jwtconfig.verify(token);
+                    } catch (JwtException exception) {
+                        throw new BadOpaqueTokenException(
+                                "Invalid or expired token",
+                                exception
+                        );
+                    }
                 }) ));
 
         return http.build();
