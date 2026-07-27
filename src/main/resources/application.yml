@@ -9,6 +9,13 @@ spring:
         api-key: "${GEMINI_API_KEY}"
         chat:
           model: "${GEMINI_MODEL:gemini-2.5-flash}"
+
+        embedding:
+          api-key: ${GEMINI_API_KEY}
+          text:
+            model: gemini-embedding-2
+            dimensions: 768
+            auto-truncate: true
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/NewsManagementSystem}
     username: "root"

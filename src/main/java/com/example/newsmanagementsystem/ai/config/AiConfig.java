@@ -8,7 +8,7 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration(proxyBeanMethods = false)
+@Configuration
 public class AiConfig {
 
     private static final String SYSTEM_PROMPT = """
