@@ -5,6 +5,8 @@
     import org.junit.jupiter.api.BeforeEach;
     import org.junit.jupiter.api.Test;
     import org.springframework.ai.chat.client.ChatClient;
+    import org.springframework.ai.embedding.EmbeddingModel;
+    import org.springframework.ai.vectorstore.VectorStore;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.boot.test.context.SpringBootTest;
     import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -31,7 +33,11 @@
 
     @SpringBootTest
     @AutoConfigureMockMvc
-    @MockitoBean(types = ChatClient.class)
+    @MockitoBean(types = {
+            ChatClient.class,
+            EmbeddingModel.class,
+            VectorStore.class
+    })
     class NewsManagementSystemApplicationTests {
 
         private static final String NEWS_BY_ID_PATH = "/api/v1/news/{newsId}";
