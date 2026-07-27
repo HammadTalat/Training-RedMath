@@ -32,6 +32,7 @@ public class DocumentLoader implements ApplicationRunner {
                         "Employees receive 18 annual paid leaves.",
                         Map.of(
                                 "title", "Annual Leave Policy",
+                                "chunk_number", "1",
                                 "category", "employee-policy",
                                 "source", "hard-coded-demo"
                         )
@@ -41,6 +42,7 @@ public class DocumentLoader implements ApplicationRunner {
                         "Employees can work remotely for two days every week.",
                         Map.of(
                                 "title", "Remote Work Policy",
+                                "chunk_number", "2",
                                 "category", "employee-policy",
                                 "source", "hard-coded-demo"
                         )
@@ -50,6 +52,7 @@ public class DocumentLoader implements ApplicationRunner {
                         "The office working hours are from 9:00 AM to 6:00 PM.",
                         Map.of(
                                 "title", "Office Working Hours",
+                                "chunk_number", "3",
                                 "category", "employee-policy",
                                 "source", "hard-coded-demo"
                         )
@@ -62,6 +65,7 @@ public class DocumentLoader implements ApplicationRunner {
                         """,
                         Map.of(
                                 "title", "News Application Roles",
+                                "chunk_number", "4",
                                 "category", "application-security",
                                 "source", "hard-coded-demo"
                         )

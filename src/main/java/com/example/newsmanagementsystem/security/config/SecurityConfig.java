@@ -65,8 +65,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/me")
                         .authenticated()
-
-
+                        .anyRequest().authenticated()
 
                 )
 //                .httpBasic(Customizer.withDefaults())
