@@ -4,11 +4,15 @@
     import com.example.newsmanagementsystem.news.NewsRepository;
     import org.junit.jupiter.api.BeforeEach;
     import org.junit.jupiter.api.Test;
+    import org.springframework.ai.chat.client.ChatClient;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.boot.test.context.SpringBootTest;
     import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+    import org.springframework.http.HttpHeaders;
+    import org.springframework.http.HttpStatus;
     import org.springframework.http.MediaType;
     import org.springframework.security.test.context.support.WithMockUser;
+    import org.springframework.test.context.bean.override.mockito.MockitoBean;
     import org.springframework.test.web.servlet.MockMvc;
     import org.springframework.test.web.servlet.MvcResult;
     import tools.jackson.databind.ObjectMapper;
@@ -27,6 +31,7 @@
 
     @SpringBootTest
     @AutoConfigureMockMvc
+    @MockitoBean(types = ChatClient.class)
     class NewsManagementSystemApplicationTests {
 
         private static final String NEWS_BY_ID_PATH = "/api/v1/news/{newsId}";
@@ -112,6 +117,19 @@
 
             mockMvc.perform(get(NEWS_BY_ID_PATH, newsId))
                     .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void rejectsAnInvalidBearerToken() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/v1/news")
+                            .header(
+                                    HttpHeaders.AUTHORIZATION,
+                                    "Bearer not-a-valid-token"
+                            ))
+                    .andReturn();
+
+            assertThat(result.getResponse().getStatus())
+                    .isEqualTo(HttpStatus.UNAUTHORIZED.value());
         }
 
     }

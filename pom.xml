@@ -34,6 +34,7 @@
         <findsecbugs.version>
             1.14.0
         </findsecbugs.version>
+        <spring-ai.version>2.0.0</spring-ai.version>
         <jacoco.version>0.8.15</jacoco.version>
 
         <sonar.projectKey>Analyze "NewsManagementSystem"</sonar.projectKey>
@@ -53,6 +54,17 @@
             1.2.3
         </pitest-junit5-plugin.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -148,6 +160,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-google-genai</artifactId>
         </dependency>
 
     </dependencies>

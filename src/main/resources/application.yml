@@ -1,6 +1,14 @@
 spring:
   application:
     name: NewsManagementSystem222
+  ai:
+    model:
+      chat: google-genai
+    google:
+      genai:
+        api-key: "${GEMINI_API_KEY}"
+        chat:
+          model: "${GEMINI_MODEL:gemini-2.5-flash}"
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/NewsManagementSystem}
     username: "root"
@@ -95,7 +103,6 @@ springdoc:
   swagger-ui:
     csrf:
       enabled=true:
-
 
 
 

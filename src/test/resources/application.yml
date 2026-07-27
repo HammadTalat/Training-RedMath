@@ -21,7 +21,9 @@ spring:
               - openid
               - profile
               - email
-
+  ai:
+    model:
+      chat: none
 # Simple values used while the test application is running.
 app:
   sample-message: Test message from application.yml
