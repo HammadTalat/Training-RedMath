@@ -56,14 +56,16 @@ public class SecurityConfig {
                                 "/",
                                 "/error",
                                 "/oauth2/**",
-                                "/login/**"
+                                "/login/**",
+                                "/api/v1/embeddings/**",
+                                "/api/v1/rag/**"
                         )
                         .permitAll()
 
 
                         .requestMatchers("/api/me")
                         .authenticated()
-                        .anyRequest().authenticated()
+
 
 
                 )
@@ -98,6 +100,10 @@ public class SecurityConfig {
 //                        }))
 //
                 .csrf(  config->config.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+                .csrf(csrf-> csrf.ignoringRequestMatchers(
+                        "/api/v1/embeddings/**",
+                        "/api/v1/rag/**"
+                ))
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS
                 ))
