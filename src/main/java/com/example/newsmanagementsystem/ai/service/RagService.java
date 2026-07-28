@@ -5,6 +5,7 @@ import com.example.newsmanagementsystem.ai.dto.RagResultdto;
 import com.example.newsmanagementsystem.ai.dto.RagSourcesdto;
 import com.example.newsmanagementsystem.ai.dto.SearchRequestdto;
 import com.example.newsmanagementsystem.ai.dto.SearchResultdto;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.document.Document;
@@ -18,10 +19,13 @@ import java.util.List;
 @Service
 public class RagService {
 
-    VectorStore store;
+    private final VectorStore store;
 
-    ChatClient chatClient;
+    private final ChatClient chatClient;
 
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring intentionally shares the injected VectorStore collaborator.")
     public RagService(VectorStore store, ChatClient client) {
         this.store = store;
         this.chatClient = client;
@@ -49,10 +53,11 @@ public class RagService {
         String  answer = chatClient.prompt().system("""
                         You are a helpful document assistant.
 
-                        Answer the question only using the provided context.
+                        Answer the question only using the provided context
+                        and if something asked that you know and its not present in
+                        the document do answer it as well.
 
-                        If the answer is not present in the context,
-                        say: I could not find the answer in the documents.
+
                         """).user(user->user.text("""
                         Context : {Context}
                         Question : {Question}

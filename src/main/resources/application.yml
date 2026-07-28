@@ -16,6 +16,13 @@ spring:
             model: gemini-embedding-2
             dimensions: 768
             auto-truncate: true
+    vectorstore:
+      qdrant:
+        host: localhost
+        port: 6334
+        collection-name: news_documents
+        use-tls: false
+        initialize-schema: true
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/NewsManagementSystem}
     username: "root"

@@ -1,5 +1,6 @@
 package com.example.newsmanagementsystem.ai.service;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
@@ -14,11 +15,19 @@ import java.util.Map;
 @Component
 public class DocumentLoader implements ApplicationRunner {
 
+    private static final String CATEGORY_METADATA_KEY = "category";
+    private static final String CHUNK_NUMBER_METADATA_KEY = "chunk_number";
+    private static final String DEMO_SOURCE = "hard-coded-demo";
+    private static final String SOURCE_METADATA_KEY = "source";
+    private static final String TITLE_METADATA_KEY = "title";
     private static final Logger log =
             LoggerFactory.getLogger(DocumentLoader.class);
 
     private final VectorStore vectorStore;
 
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring intentionally shares the injected VectorStore collaborator.")
     public DocumentLoader(VectorStore vectorStore) {
         this.vectorStore = vectorStore;
     }
@@ -31,30 +40,30 @@ public class DocumentLoader implements ApplicationRunner {
                 new Document(
                         "Employees receive 18 annual paid leaves.",
                         Map.of(
-                                "title", "Annual Leave Policy",
-                                "chunk_number", "1",
-                                "category", "employee-policy",
-                                "source", "hard-coded-demo"
+                                TITLE_METADATA_KEY, "Annual Leave Policy",
+                                CHUNK_NUMBER_METADATA_KEY, "1",
+                                CATEGORY_METADATA_KEY, "employee-policy",
+                                SOURCE_METADATA_KEY, DEMO_SOURCE
                         )
                 ),
 
                 new Document(
                         "Employees can work remotely for two days every week.",
                         Map.of(
-                                "title", "Remote Work Policy",
-                                "chunk_number", "2",
-                                "category", "employee-policy",
-                                "source", "hard-coded-demo"
+                                TITLE_METADATA_KEY, "Remote Work Policy",
+                                CHUNK_NUMBER_METADATA_KEY, "2",
+                                CATEGORY_METADATA_KEY, "employee-policy",
+                                SOURCE_METADATA_KEY, DEMO_SOURCE
                         )
                 ),
 
                 new Document(
                         "The office working hours are from 9:00 AM to 6:00 PM.",
                         Map.of(
-                                "title", "Office Working Hours",
-                                "chunk_number", "3",
-                                "category", "employee-policy",
-                                "source", "hard-coded-demo"
+                                TITLE_METADATA_KEY, "Office Working Hours",
+                                CHUNK_NUMBER_METADATA_KEY, "3",
+                                CATEGORY_METADATA_KEY, "employee-policy",
+                                SOURCE_METADATA_KEY, DEMO_SOURCE
                         )
                 ),
 
@@ -64,19 +73,17 @@ public class DocumentLoader implements ApplicationRunner {
                         Administrators can create, update, and delete news articles.
                         """,
                         Map.of(
-                                "title", "News Application Roles",
-                                "chunk_number", "4",
-                                "category", "application-security",
-                                "source", "hard-coded-demo"
+                                TITLE_METADATA_KEY, "News Application Roles",
+                                CHUNK_NUMBER_METADATA_KEY, "4",
+                                CATEGORY_METADATA_KEY, "application-security",
+                                SOURCE_METADATA_KEY, DEMO_SOURCE
                         )
                 )
         );
 
         vectorStore.add(documents);
 
-        log.info(
-                "Loaded {} demo documents into the vector store",
-                documents.size()
-        );
+        int documentCount = documents.size();
+        log.info("Loaded {} demo documents into the vector store", documentCount);
     }
 }
