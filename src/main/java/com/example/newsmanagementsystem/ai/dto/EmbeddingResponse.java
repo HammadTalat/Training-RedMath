@@ -5,4 +5,12 @@ public record EmbeddingResponse(
         int dimensions,
         float[] vectorPreview
 ) {
+    public EmbeddingResponse {
+        vectorPreview = vectorPreview.clone();
+    }
+
+    @Override
+    public float[] vectorPreview() {
+        return vectorPreview.clone();
+    }
 }
