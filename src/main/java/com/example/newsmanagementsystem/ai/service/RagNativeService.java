@@ -33,7 +33,7 @@ public class RagNativeService implements RagService {
     public RagResultdto ask(SearchRequestdto request) {
 
         SearchRequest searchRequest = SearchRequest.builder().
-                query(request.query()).topK(3).similarityThreshold(0.1).build();
+                query(request.query()).topK(10).similarityThreshold(0.1).build();
 
         List<Document>documents = store.similaritySearch(searchRequest);
 
