@@ -2,7 +2,6 @@ package com.example.newsmanagementsystem.ai.controller.VectorDB;
 
 import com.example.newsmanagementsystem.ai.dto.VectorDB.SaveDocumentRequest;
 import com.example.newsmanagementsystem.ai.dto.VectorDB.SaveDocumentResponse;
-import com.example.newsmanagementsystem.ai.dto.VectorDB.SaveDocumentResponse;
 import com.example.newsmanagementsystem.ai.service.VectorDB.DocumentStorageService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
