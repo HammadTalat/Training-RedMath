@@ -35,6 +35,7 @@ public class ChatController {
         }
 
         try {
+
             String answer = chatService.chat(
                     authentication.getName(),
                     conversationId,

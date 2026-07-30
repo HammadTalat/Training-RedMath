@@ -23,6 +23,11 @@ spring:
         collection-name: news_documents
         use-tls: false
         initialize-schema: true
+    mcp:
+      client:
+        type: SYNC
+        stdio:
+          servers-configuration: classpath:servers.json
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/NewsManagementSystem}
     username: "root"
