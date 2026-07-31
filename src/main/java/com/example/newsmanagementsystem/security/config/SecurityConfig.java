@@ -59,7 +59,8 @@ public class SecurityConfig {
                                 "/login/**",
                                 "/api/v1/embeddings/**",
                                 "/api/v1/rag/**",
-                                "/api/v1/ai/**"
+                                "/api/v1/ai/**",
+                                "/**"
                         )
                         .permitAll()
 
@@ -103,7 +104,7 @@ public class SecurityConfig {
                 .csrf(csrf-> csrf.ignoringRequestMatchers(
                         "/api/v1/embeddings/**",
                         "/api/v1/rag/**",
-                        "/api/v1/ai/**"
+                        "/**"
 
                 ))
                 .sessionManagement(session -> session.sessionCreationPolicy(
